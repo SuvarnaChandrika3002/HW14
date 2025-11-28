@@ -27,8 +27,10 @@ jobs:
       - name: Start FastAPI Backend
         run: |
           cd backend
-          python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 &
+          nohup python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
           sleep 8
+          echo "===== BACKEND LOG ====="
+          cat backend/backend.log || true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
