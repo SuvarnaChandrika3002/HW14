@@ -24,7 +24,7 @@ jobs:
           cd backend
           pip install -r requirements.txt
 
-      - name: Start FastAPI backend
+      - name: Start FastAPI Backend
         run: |
           cd backend
           uvicorn main:app --host 0.0.0.0 --port 8000 &
@@ -35,18 +35,18 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install Playwright
+      - name: Install frontend dependencies / Playwright
         run: |
-          npm install -D @playwright/test
+          npm ci
           npx playwright install --with-deps
 
-      - name: Start frontend server
+      - name: Start Frontend Server
         run: |
           cd forntend
           python3 -m http.server 5500 &
           sleep 3
 
-      - name: Run Playwright tests
+      - name: Run Playwright Tests
         run: npx playwright test
 
       - name: Login to Docker Hub
@@ -55,8 +55,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
+      - name: Build Docker Image
         run: docker build -t sc673/hw14-backend ./backend
 
-      - name: Push Docker image
+      - name: Push Docker Image
         run: docker push sc673/hw14-backend
