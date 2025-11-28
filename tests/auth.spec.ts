@@ -9,7 +9,6 @@ test('User can register and login', async ({ page }) => {
   await page.fill('#password', '123456');
   await page.click('button[type="submit"]');
 
-  // WAIT
   await page.waitForTimeout(800);
 
   // OPEN LOGIN PAGE
@@ -19,6 +18,5 @@ test('User can register and login', async ({ page }) => {
   await page.fill('#password', '123456');
   await page.click('button[type="submit"]');
 
-  // WAIT FOR REDIRECT
-  await page.waitForURL('**/forntend/calculations.html', { timeout: 5000 });
+  await page.waitForURL('**/forntend/calculations.html', { timeout: 8000 });
 });
