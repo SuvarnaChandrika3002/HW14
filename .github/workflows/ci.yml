@@ -68,11 +68,14 @@ jobs:
       - name: Start Frontend Server
         run: |
           cd forntend
+          echo "Starting frontend server..."
+          ls -R .
           nohup python3 -m http.server 8001 > frontend.log 2>&1 &
           sleep 5
           echo "===== FRONTEND LOG START ====="
           cat frontend.log || true
           echo "===== FRONTEND LOG END ====="
+          ls -R .
 
       # ---------------------------
       # 8. RUN PLAYWRIGHT TESTS

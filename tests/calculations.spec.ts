@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  page.on('console', msg => console.log("PAGE LOG:", msg.text()));
+  page.on('pageerror', err => console.log("PAGE ERROR:", err));
+});
+
 test('Create, read, delete calculation', async ({ page }) => {
 
   // REGISTER
