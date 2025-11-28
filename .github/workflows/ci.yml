@@ -42,7 +42,7 @@ jobs:
 
       - name: Start Frontend Server
         run: |
-          cd forntend
+          # Serve entire project root so tests can access /forntend/*.html
           python3 -m http.server 5500 &
           sleep 3
 
