@@ -1,0 +1,77 @@
+name: CI/CD Pipeline - HW14
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    services:
+      backend:
+        image: python:3.11
+        ports:
+          - 8000:8000
+        options: >-
+          --health-cmd="curl --fail http://127.0.0.1:8000/docs || exit 1"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+        volumes:
+          - ./:/app
+        command: >
+          bash -c "
+          cd /app/backend &&
+          pip install --no-cache-dir -r requirements.txt &&
+          uvicorn main:app --host 0.0.0.0 --port 8000
+          "
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "18"
+
+    - name: Install Playwright Browsers
+      run: |
+        npm install -D @playwright/test
+        npx playwright install --with-deps
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install Frontend Server
+      run: sudo apt-get install -y python3
+
+    - name: Start Frontend Server (background)
+      run: |
+        cd forntend
+        python3 -m http.server 5500 &
+        sleep 3
+
+    - name: Run Playwright Tests
+      run: npx playwright test
+
+   
+    - name: Log in to DockerHub
+      if: success()
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/hw14-backend:latest ./backend
+
+    - name: Push Docker Image
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/hw14-backend:latest
