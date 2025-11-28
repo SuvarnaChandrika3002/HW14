@@ -1,2 +1,9 @@
 node_modules/
 test-results/
+playwright-report/
+blob-report/
+backend/.venv/
+**/__pycache__/
+*.db
+.DS_Store
+Thumbs.db
