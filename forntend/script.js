@@ -1,6 +1,8 @@
 const API = "http://127.0.0.1:8000";
 
-// REGISTER
+/* ===========================
+   REGISTER
+=========================== */
 if (document.getElementById("registerForm")) {
     document.getElementById("registerForm").onsubmit = async (e) => {
         e.preventDefault();
@@ -24,7 +26,9 @@ if (document.getElementById("registerForm")) {
     };
 }
 
-// LOGIN
+/* ===========================
+   LOGIN
+=========================== */
 if (document.getElementById("loginForm")) {
     document.getElementById("loginForm").onsubmit = async (e) => {
         e.preventDefault();
@@ -43,17 +47,22 @@ if (document.getElementById("loginForm")) {
 
         if (data.access_token) {
             localStorage.setItem("token", data.access_token);
-            window.location.href = "calculations.html";
+
+            // ⭐ FIXED REDIRECT FOR CI AND LOCAL
+            window.location.href = "./calculations.html";
+
         } else {
             msg.innerText = "Invalid credentials!";
         }
     };
 }
 
-// LOAD CALCULATIONS
+/* ===========================
+   LOAD CALCULATIONS
+=========================== */
 async function loadCalculations() {
     const token = localStorage.getItem("token");
-    if (!token) window.location.href = "login.html";
+    if (!token) window.location.href = "./login.html";
 
     let res = await fetch(`${API}/calculations/?token=${token}`);
     let data = await res.json();
@@ -64,7 +73,7 @@ async function loadCalculations() {
     data.forEach(item => {
         listDiv.innerHTML += `
             <div>
-                <b>ID:</b> ${item.id} — 
+                <b>ID:</b> ${item.id} —
                 ${item.operand1} ${item.operation} ${item.operand2} = ${item.result}
                 <button onclick="deleteCalc(${item.id})">Delete</button>
             </div>
@@ -72,7 +81,9 @@ async function loadCalculations() {
     });
 }
 
-// ADD CALCULATION
+/* ===========================
+   ADD CALCULATION
+=========================== */
 if (document.getElementById("addForm")) {
     document.getElementById("addForm").onsubmit = async (e) => {
         e.preventDefault();
@@ -92,7 +103,9 @@ if (document.getElementById("addForm")) {
     };
 }
 
-// DELETE CALCULATION
+/* ===========================
+   DELETE CALCULATION
+=========================== */
 async function deleteCalc(id) {
     let token = localStorage.getItem("token");
 
@@ -103,13 +116,17 @@ async function deleteCalc(id) {
     loadCalculations();
 }
 
-// LOGOUT
+/* ===========================
+   LOGOUT
+=========================== */
 function logout() {
     localStorage.removeItem("token");
-    window.location.href = "login.html";
+    window.location.href = "./login.html";
 }
 
-// AUTOLOAD CALCULATIONS
-if (window.location.href.endsWith("calculations.html")) {
+/* ===========================
+   AUTOLOAD CALCULATIONS
+=========================== */
+if (window.location.pathname.endsWith("calculations.html")) {
     loadCalculations();
 }
