@@ -33,7 +33,7 @@ jobs:
           npm install
           npx playwright install --with-deps
 
-      - name: Start Backend
+      - name: Start backend
         run: |
           uvicorn app.main:app --host 0.0.0.0 --port 8000 &
           sleep 5
