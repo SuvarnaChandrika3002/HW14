@@ -1,0 +1,21 @@
+<html>
+<body>
+<div id="d"></div>
+<button id="e">Edit</button>
+<button id="x">Delete</button>
+<script>
+const id=new URLSearchParams(location.search).get("id")
+async function load(){
+let r=await fetch("/calculations/"+id,{headers:{Authorization:"Bearer "+localStorage.getItem("t")}})
+let c=await r.json()
+d.innerHTML=`${c.operation} ${c.operand1} ${c.operand2} = ${c.result}`
+}
+e.onclick=()=>location="/static/edit_calculation.html?id="+id
+x.onclick=async()=>{
+await fetch("/calculations/"+id,{method:"DELETE",headers:{Authorization:"Bearer "+localStorage.getItem("t")}})
+location="/static/calculations.html"
+}
+load()
+</script>
+</body>
+</html>

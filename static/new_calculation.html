@@ -1,0 +1,20 @@
+<html>
+<body>
+<h2>New Calculation</h2>
+<select id="op">
+<option>add</option>
+<option>subtract</option>
+<option>multiply</option>
+<option>divide</option>
+</select>
+<input id="a">
+<input id="b">
+<button onclick="create()">Create</button>
+<script>
+async function create(){
+await fetch("/calculations/",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+localStorage.getItem("t")},body:JSON.stringify({operation:op.value,operand1:+a.value,operand2:+b.value})})
+location="/static/calculations.html"
+}
+</script>
+</body>
+</html>

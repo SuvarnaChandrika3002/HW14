@@ -1,0 +1,29 @@
+<html>
+<body>
+<h2>Edit Calculation</h2>
+<select id="op">
+<option>add</option>
+<option>subtract</option>
+<option>multiply</option>
+<option>divide</option>
+</select>
+<input id="a">
+<input id="b">
+<button onclick="save()">Save</button>
+<script>
+const id=new URLSearchParams(location.search).get("id")
+async function load(){
+let r=await fetch("/calculations/"+id,{headers:{Authorization:"Bearer "+localStorage.getItem("t")}})
+let c=await r.json()
+op.value=c.operation
+a.value=c.operand1
+b.value=c.operand2
+}
+async function save(){
+await fetch("/calculations/"+id,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:"Bearer "+localStorage.getItem("t")},body:JSON.stringify({operation:op.value,operand1:+a.value,operand2:+b.value})})
+location="/static/calculations.html"
+}
+load()
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<html>
+<body>
+<h2>Your Calculations</h2>
+<a href="/static/new_calculation.html">New</a>
+<div id="list"></div>
+<script>
+async function load(){
+let r=await fetch("/calculations/",{headers:{Authorization:"Bearer "+localStorage.getItem("t")}})
+let j=await r.json()
+list.innerHTML=""
+j.forEach(c=>{
+list.innerHTML+=`<div>
+${c.operation} ${c.operand1} ${c.operand2} = ${c.result}
+<a href="/static/calculation.html?id=${c.id}">Open</a>
+</div>`
+})
+}
+load()
+</script>
+</body>
+</html>

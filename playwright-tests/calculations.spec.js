@@ -1,0 +1,17 @@
+const { test, expect } = require("@playwright/test")
+const { login } = require("./helpers")
+
+test("full calculation flow", async ({ page }) => {
+  await page.goto("/static/register.html")
+  await page.fill("#u","u2")
+  await page.fill("#p","p2")
+  await page.click("button")
+  await login(page,"u2","p2")
+  await page.goto("/static/new_calculation.html")
+  await page.selectOption("#op","add")
+  await page.fill("#a","5")
+  await page.fill("#b","3")
+  await page.click("button")
+  await page.goto("/static/calculations.html")
+  await page.waitForSelector("text=add 5 3")
+})

@@ -1,0 +1,14 @@
+<html>
+<body>
+<h2>Register</h2>
+<input id="u"><br>
+<input id="p" type="password"><br>
+<button onclick="reg()">Register</button>
+<script>
+async function reg(){
+await fetch("/users/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.value,password:p.value})})
+location="/static/login.html"
+}
+</script>
+</body>
+</html>
