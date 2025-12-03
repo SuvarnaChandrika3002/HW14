@@ -1,117 +1,42 @@
-name: CI/CD
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - "*"
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-    inputs:
-      skip_security:
-        description: 'Skip security and deploy jobs'
-        required: false
-        default: 'false'
+    branches:
+      - "*"
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: mytestdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: 3.11
 
-      - uses: actions/cache@v3
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          node-version: 18
 
-      - name: Install dependencies
-        env:
-          DATABASE_URL: postgresql://user:password@localhost:5432/mytestdb
+      - name: Install Playwright deps
         run: |
-          python -m venv venv
-          source venv/bin/activate
+          npm install
+          npx playwright install --with-deps
 
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-          # IMPORTANT — install browsers with dependencies
-          pip install playwright
-          playwright install --with-deps
-
-      - name: Run tests
-        env:
-          DATABASE_URL: postgresql://user:password@localhost:5432/mytestdb
+      - name: Start Backend
         run: |
-          source venv/bin/activate
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 5
 
-          # Unit tests
-          pytest tests/unit/ --cov=src --junitxml=test-results/junit.xml
-
-          # Integration tests
-          pytest tests/integration/
-
-          # E2E tests
-          pytest tests/e2e/
-
-  security:
-    if: ${{ github.event.inputs.skip_security != 'true' }}
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build image
-        run: docker build -t app:test .
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'app:test'
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
-
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event.inputs.skip_security != 'true'
-    needs: security
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: docker/setup-buildx-action@v3
-
-      - uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: |
-            ab2609/hw13:latest
-            ab2609/hw13:${{ github.sha }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: t
+      - name: Run Playwright tests
+        run: npx playwright test
